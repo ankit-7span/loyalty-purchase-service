@@ -1,0 +1,25 @@
+server:
+  port: 8081
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+  datasource:
+    url: jdbc:postgresql://127.0.0.1:5432/purchase_service
+    username: postgres
+    password: root
+  kafka:
+   producer:
+    bootstrap-servers: 0.0.0.0:9092
+    producer.key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+   topic:name: wallet_topics
+
+conversionRate: 1
+customer:
+  client:
+    uri: http://localhost:8082/api/customer
+
+
