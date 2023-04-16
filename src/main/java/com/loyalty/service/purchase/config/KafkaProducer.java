@@ -11,20 +11,20 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Log4j2
-public class WalletProducer {
+public class KafkaProducer {
 
 
     private NewTopic topic;
 
     private KafkaTemplate<String, WalletEvent> kafkaTemplate;
 
-    public WalletProducer(NewTopic topic, KafkaTemplate<String, WalletEvent> kafkaTemplate) {
+    public KafkaProducer(NewTopic topic, KafkaTemplate<String, WalletEvent> kafkaTemplate) {
         this.topic = topic;
         this.kafkaTemplate = kafkaTemplate;
     }
 
     public void sendMessage(WalletEvent event){
-        log.info(String.format("Wallet event => %s", event.toString()));
+        log.info("Wallet event => {}", event.toString());
 
         // create Message
         Message<WalletEvent> message = MessageBuilder

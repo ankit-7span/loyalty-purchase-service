@@ -4,6 +4,7 @@ import com.loyalty.service.purchase.entity.LoyaltyPoints;
 import com.loyalty.service.purchase.entity.Purchase;
 import com.loyalty.service.purchase.enums.ConversionRateEnum;
 import com.loyalty.service.purchase.model.LeaderboardData;
+import com.loyalty.service.purchase.model.LeaderboardDetailData;
 import com.loyalty.service.purchase.model.LeaderboardDto;
 import com.loyalty.service.purchase.model.LeaderboardRequest;
 import com.loyalty.service.purchase.repository.LoyaltyPointsRepository;
@@ -47,17 +48,15 @@ public class LoyaltyPointsServiceImpl implements LoyaltyPointsService {
     @Override
     public LeaderboardDto getLeaderboardData(LeaderboardRequest leaderboardRequest) {
         List<LeaderboardData> leaderboardData = new ArrayList<>();
+        int year = Integer.parseInt(leaderboardRequest.getYearAndMonth().substring(0, 4));
+        int month = Integer.parseInt(leaderboardRequest.getYearAndMonth().substring(4));
         if (!ObjectUtils.isEmpty(leaderboardRequest.getCustomerId())) {
-            Long totalLoyaltyPoints = loyaltyPointsRepository.findByCustomerIdAndGroupByLoyaltyPoints(leaderboardRequest.getCustomerId());
+            Long totalLoyaltyPoints = loyaltyPointsRepository.findByCustomerIdAndGroupByLoyaltyPoints(leaderboardRequest.getCustomerId(),month,year);
             leaderboardData.add(new LeaderboardData(leaderboardRequest.getCustomerId(), totalLoyaltyPoints));
         } else {
-            int year = Integer.parseInt(leaderboardRequest.getYearAndMonth().substring(0, 4));
-            int month = Integer.parseInt(leaderboardRequest.getYearAndMonth().substring(4));
-            List<Object[]> leaderboardDataObjects = loyaltyPointsRepository.findTop3CustomerByMonthAndYear(month, year);
-            for (Object[] row : leaderboardDataObjects) {
-                Long customerId = (Long) row[0];
-                Long totalLoyaltyPoints = (Long) row[1];
-                leaderboardData.add(new LeaderboardData(customerId, totalLoyaltyPoints));
+            List<LeaderboardDetailData> leaderboardDataObjects = loyaltyPointsRepository.findTop3CustomerByMonthAndYear(month, year);
+            for (LeaderboardDetailData leaderboardDataObject : leaderboardDataObjects) {
+                leaderboardData.add(new LeaderboardData(leaderboardDataObject.getCustomerId(),leaderboardDataObject.getTotalLoyaltyPoints()));
             }
         }
         return LeaderboardDto.builderSuper().response(leaderboardData).resultMessage("Leaderboard data fetch successfully!").resultCode(HttpStatus.OK.value()).build();

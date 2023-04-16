@@ -1,7 +1,7 @@
 package com.loyalty.service.purchase.service.serviceImpl;
 
 import com.loyalty.service.purchase.client.CustomerClientService;
-import com.loyalty.service.purchase.config.WalletProducer;
+import com.loyalty.service.purchase.config.KafkaProducer;
 import com.loyalty.service.purchase.entity.Purchase;
 import com.loyalty.service.purchase.enums.ConversionRateEnum;
 import com.loyalty.service.purchase.model.*;
@@ -34,7 +34,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     private int rewardThreshold;
 
     @Autowired
-    private WalletProducer walletProducer;
+    private KafkaProducer walletProducer;
 
     @Autowired
     CustomerClientService customerClientService;
