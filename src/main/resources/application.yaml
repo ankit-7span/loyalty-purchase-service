@@ -1,6 +1,9 @@
 server:
   port: 8081
 spring:
+  application:
+    name: PURCHASE-SERVICE
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -16,6 +19,15 @@ spring:
     producer.key-serializer: org.apache.kafka.common.serialization.StringSerializer
     value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
    topic:name: wallet_topics
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: ${EUREKA_SERVER_ADDRESS:http://localhost:8761/eureka}
 
 ################## Redis Config Starts ###################
 ## Spring-Caching type: Redis
