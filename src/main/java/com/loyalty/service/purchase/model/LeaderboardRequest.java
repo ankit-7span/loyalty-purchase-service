@@ -1,5 +1,8 @@
 package com.loyalty.service.purchase.model;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,6 +12,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LeaderboardRequest {
 
+    @NotNull
+    @NotBlank
+    @NotEmpty
     private String yearAndMonth;
 
     private Long customerId;
