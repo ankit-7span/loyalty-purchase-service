@@ -1,4 +1,4 @@
-package com.loyalty.service.purchase.client;
+package com.loyalty.service.purchase.config;
 
 import com.loyalty.service.purchase.model.WalletEvent;
 import lombok.extern.log4j.Log4j2;
@@ -24,7 +24,7 @@ public class WalletProducer {
     }
 
     public void sendMessage(WalletEvent event){
-        log.info(String.format("Order event => %s", event.toString()));
+        log.info(String.format("Wallet event => %s", event.toString()));
 
         // create Message
         Message<WalletEvent> message = MessageBuilder

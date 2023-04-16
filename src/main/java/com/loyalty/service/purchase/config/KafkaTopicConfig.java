@@ -1,4 +1,4 @@
-package com.loyalty.service.purchase.client;
+package com.loyalty.service.purchase.config;
 
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.beans.factory.annotation.Value;

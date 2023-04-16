@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 @Entity
 public class LoyaltyPoints {
 
@@ -28,13 +30,10 @@ public class LoyaltyPoints {
 
     private Long redemptionAmount;
 
-    private LocalDateTime date;
+    private LocalDateTime createdDate;
 
     @Enumerated(EnumType.STRING)
     private ConversionRateEnum conversionRate;
 
-    @Override
-    public String toString() {
-        return "LoyaltyPoints{" + "Id=" + Id + ", customerId=" + customerId + ", purchase=" + purchase + ", redemptionAmount=" + redemptionAmount + ", date=" + date + ", conversionRateEnum=" + conversionRate.toString() + '}';
-    }
+    private Integer loyaltyPoints;
 }

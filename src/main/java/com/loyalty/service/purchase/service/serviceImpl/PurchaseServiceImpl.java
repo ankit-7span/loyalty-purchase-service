@@ -1,7 +1,7 @@
 package com.loyalty.service.purchase.service.serviceImpl;
 
 import com.loyalty.service.purchase.client.CustomerClientService;
-import com.loyalty.service.purchase.client.WalletProducer;
+import com.loyalty.service.purchase.config.WalletProducer;
 import com.loyalty.service.purchase.entity.Purchase;
 import com.loyalty.service.purchase.enums.ConversionRateEnum;
 import com.loyalty.service.purchase.model.*;
@@ -28,7 +28,10 @@ public class PurchaseServiceImpl implements PurchaseService {
     private LoyaltyPointsService loyaltyPointsService;
 
     @Value(value = "${conversionRate:1}")
-    private Integer conversionRate;
+    private int conversionRate;
+
+    @Value(value = "${rewardThreshold:100}")
+    private int rewardThreshold;
 
     @Autowired
     private WalletProducer walletProducer;
@@ -45,16 +48,25 @@ public class PurchaseServiceImpl implements PurchaseService {
 
             log.debug("Calling customer client service to get customer data having customer id {} ", purchaseRequest.customerID());
             ResponseDTO purchaseDetails = customerClientService.getCustomerById(purchaseRequest.customerID());
-
+            long loyaltyPoints = 0L;
             if (Objects.nonNull(purchaseDetails)) {
-                if (purchaseDetails.getResponse().walletBalance() < purchaseRequest.redemptionPoints()) {
-                    return PurchaseResponseDTO.builderSuper().resultMessage("Insufficient balance").resultCode(HttpStatus.OK.value()).build();
+                if (purchaseRequest.redemptionPoints() != null && purchaseRequest.redemptionPoints() > 0) {
+                    ConversionRateEnum conversionRateEnum = ConversionRateEnum.getByValue(conversionRate);
+                    long pointsValue = Objects.requireNonNull(conversionRateEnum).getValue() * purchaseRequest.redemptionPoints();
+                    if (pointsValue > purchaseRequest.purchaseAmount()) {
+                        return PurchaseResponseDTO.builderSuper().resultMessage("Points Value more then purchase amount, currently 1 loyalty point = " + Objects.requireNonNull(conversionRateEnum).getValue() + "₹").resultCode(HttpStatus.OK.value()).build();
+                    }
+                    if (purchaseDetails.getResponse().walletBalance() < purchaseRequest.redemptionPoints()) {
+                        return PurchaseResponseDTO.builderSuper().resultMessage("Insufficient balance").resultCode(HttpStatus.OK.value()).build();
+                    }
+                    loyaltyPoints = updateWallet(purchaseRequest.redemptionPoints(), purchaseRequest.purchaseAmount());
+                } else {
+                    loyaltyPoints = getLoyaltyPoint(purchaseRequest.purchaseAmount());
                 }
-                final var walletDetails = new WalletDetails(purchaseDetails.getResponse().customerId(), purchaseRequest.redemptionPoints());
-                final var walletEvent = new WalletEvent("Wallet update status is in pending", "PENDING", walletDetails);
+                final var walletEvent = new WalletEvent("Wallet update status is in pending", "PENDING", new WalletDetails(purchaseDetails.getResponse().customerId(), loyaltyPoints));
                 walletProducer.sendMessage(walletEvent);
                 Purchase purchase = savePurchaseDetails(purchaseDetails, purchaseRequest);
-                loyaltyPointsService.saveLoyaltyPointsDetails(purchase, purchaseRequest.purchaseAmount());
+                loyaltyPointsService.saveLoyaltyPointsDetails(purchase, purchaseRequest.purchaseAmount(),getLoyaltyPoint(purchase.getPurchaseAmount()));
 
                 PurchaseResponse purchaseResponse = new PurchaseResponse(purchase.getCustomerId(), purchase.getPartnerStoreId(), purchase.getPurchaseAmount(), purchase.getPurchaseDate());
 
@@ -62,6 +74,21 @@ public class PurchaseServiceImpl implements PurchaseService {
             }
         }
         return PurchaseResponseDTO.builderSuper().resultMessage("Customer not exist in our system").resultCode(HttpStatus.OK.value()).build();
+    }
+
+    private long updateWallet(Long redemptionPoints, Long purchaseAmount) {
+        long points = 0L;
+        if (purchaseAmount >= rewardThreshold) {
+            Integer loyaltyPoint = getLoyaltyPoint(purchaseAmount);
+            points = loyaltyPoint - redemptionPoints;
+        }
+        return points;
+    }
+
+    private Integer getLoyaltyPoint(Long purchaseAmount) {
+        int amount = Math.round(purchaseAmount);
+        int getPoint = amount / 100;
+        return getPoint * 4;
     }
 
     public Purchase savePurchaseDetails(ResponseDTO purchaseDetails, PurchaseRequest purchaseRequest) {

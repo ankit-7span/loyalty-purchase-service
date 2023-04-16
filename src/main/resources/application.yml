@@ -12,12 +12,27 @@ spring:
     password: root
   kafka:
    producer:
-    bootstrap-servers: 0.0.0.0:9092
+    bootstrap-servers: 127.0.0.1:9092
     producer.key-serializer: org.apache.kafka.common.serialization.StringSerializer
     value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
    topic:name: wallet_topics
 
+################## Redis Config Starts ###################
+## Spring-Caching type: Redis
+#  cache:
+#    type: redis
+## Redis config props
+#redis-props:
+#  host: localhost
+#  port: 6379
+## Redis cache config props
+#  cache-prefix-key: pk-1
+## Redis cache-time-to-live: TTL in (minutes)
+#  cache-ttl: 5
+################## Redis Config Ends #####################
+
 conversionRate: 1
+rewardThreshold: 100
 customer:
   client:
     uri: http://localhost:8082/api/customer
