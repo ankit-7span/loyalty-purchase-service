@@ -27,17 +27,17 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Autowired
     private LoyaltyPointsService loyaltyPointsService;
 
-    @Value(value = "${conversionRate:1}")
+    @Value("${conversionRate:1}")
     private int conversionRate;
 
-    @Value(value = "${rewardThreshold:100}")
+    @Value("${rewardThreshold:100}")
     private int rewardThreshold;
 
     @Autowired
     private KafkaProducer walletProducer;
 
     @Autowired
-    CustomerClientService customerClientService;
+    private CustomerClientService customerClientService;
 
     @Override
     public PurchaseResponseDTO purchase(PurchaseRequest purchaseRequest) {
